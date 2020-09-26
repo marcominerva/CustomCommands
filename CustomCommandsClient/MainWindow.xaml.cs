@@ -145,10 +145,18 @@ namespace CustomCommandsClient
                 }
             }
 
-            // Checks if the activity expects a further user input.
-            if (activity.Type == ActivityTypes.Message && activity.InputHint == InputHints.ExpectingInput)
+            // Checks whether it is a custom activity sent to client.
+            if (activity.Type == "event")
             {
-                waitingForUserInput = true;
+
+            }
+            else if (activity.Type == ActivityTypes.Message)
+            {
+                if (activity.InputHint == InputHints.ExpectingInput)
+                {
+                    // The activity expects a further user input.
+                    waitingForUserInput = true;
+                }
             }
         }
 
