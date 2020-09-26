@@ -95,7 +95,6 @@
                                             FontWeight="Bold"
                                             Foreground="White"
                                             Text="{Binding Message}"
-                                            TextAlignment="Center"
                                             TextWrapping="Wrap" />
                                     </Border>
                                     <Polygon
@@ -132,6 +131,7 @@
                                 <Setter TargetName="bubbleTip" Property="Points" Value="" />
                                 <Setter TargetName="textBubble" Property="HorizontalAlignment" Value="Center" />
                                 <Setter TargetName="textBlock" Property="HorizontalAlignment" Value="Center" />
+                                <Setter TargetName="textBlock" Property="TextAlignment" Value="Center"></Setter>
                             </DataTrigger>
                         </DataTemplate.Triggers>
                     </DataTemplate>

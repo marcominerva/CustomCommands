@@ -148,9 +148,10 @@ namespace CustomCommandsClient
             }
 
             // Checks whether it is a custom activity sent to client.
-            if (activity.Type == "event")
+            if (activity.Type == "event" && activity.Value != null)
             {
-
+                var message = $"{activity.Name}{Environment.NewLine}{activity.Value}";
+                AddMessage(new MessageDisplay(message, Sender.Bot));
             }
             else if (activity.Type == ActivityTypes.Message)
             {
