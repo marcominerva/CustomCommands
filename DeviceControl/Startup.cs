@@ -23,6 +23,7 @@ namespace DeviceControl
             services.AddControllers();
 
             services.AddSingleton<GpioService>();
+            services.AddScoped<LedService>();
 
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(c =>
@@ -53,8 +54,6 @@ namespace DeviceControl
             });
 
             app.UseRouting();
-
-            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

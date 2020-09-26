@@ -14,12 +14,12 @@ namespace DeviceControl.Services
 
         public Task SetPinAsync(int pinNumber, PinValue value)
         {
-            if (!gpioController.IsPinOpen(pinNumber))
-            {
-                gpioController.OpenPin(pinNumber, PinMode.Output);
-            }
+            //if (!gpioController.IsPinOpen(pinNumber))
+            //{
+            //    gpioController.OpenPin(pinNumber, PinMode.Output);
+            //}
 
-            gpioController.Write(pinNumber, value);
+            //gpioController.Write(pinNumber, value);
 
             return Task.CompletedTask;
         }
