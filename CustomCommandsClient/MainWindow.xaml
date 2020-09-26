@@ -17,6 +17,156 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
+
+            <ListView
+                x:Name="ConversationHistory"
+                Margin="0,10,0,0"
+                HorizontalContentAlignment="Stretch"
+                ItemsSource="{Binding Messages}"
+                ScrollViewer.CanContentScroll="False"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Vertical">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="auto" />
+                                </Grid.RowDefinitions>
+
+                                <!--  Columns to support messages being left/right aligned based on source  -->
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition>
+                                        <ColumnDefinition.Style>
+                                            <Style TargetType="{x:Type ColumnDefinition}">
+                                                <Setter Property="Width" Value="1*" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Path=From}" Value="User">
+                                                        <Setter Property="Width" Value="0" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ColumnDefinition.Style>
+                                    </ColumnDefinition>
+                                    <ColumnDefinition Width="5*" />
+                                    <ColumnDefinition>
+                                        <ColumnDefinition.Style>
+                                            <Style TargetType="{x:Type ColumnDefinition}">
+                                                <Setter Property="Width" Value="1*" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Path=From}" Value="Bot">
+                                                        <Setter Property="Width" Value="0" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ColumnDefinition.Style>
+                                    </ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+
+                                <!--  Actual message  -->
+                                <Grid
+                                    Grid.Row="0"
+                                    Grid.Column="1"
+                                    Margin="5,0"
+                                    Visibility="{Binding Visibility}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="auto" />
+                                        <RowDefinition Height="auto" />
+                                    </Grid.RowDefinitions>
+                                    <Border
+                                        Name="textBubble"
+                                        Padding="2"
+                                        HorizontalAlignment="Right"
+                                        Background="SteelBlue"
+                                        BorderBrush="Black"
+                                        CornerRadius="10">
+                                        <TextBox
+                                            Name="textBlock"
+                                            Grid.Row="1"
+                                            MinWidth="50"
+                                            Padding="5,0"
+                                            HorizontalAlignment="Center"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            FontWeight="Bold"
+                                            Foreground="White"
+                                            Text="{Binding Message}"
+                                            TextAlignment="Center"
+                                            TextWrapping="Wrap" />
+                                    </Border>
+                                    <Polygon
+                                        Name="bubbleTip"
+                                        Grid.Row="1"
+                                        Margin="0,-1,5,0"
+                                        HorizontalAlignment="Right"
+                                        Fill="SteelBlue"
+                                        Points="0,0 -16,0 0,5" />
+                                </Grid>
+
+                                <!--  Adaptive cards  -->
+                                <ListView
+                                    Grid.Row="1"
+                                    Grid.Column="1"
+                                    HorizontalContentAlignment="Stretch"
+                                    BorderThickness="0"
+                                    ItemsSource="{Binding AdaptiveCards}"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="ListViewItem">
+                                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border
+                                                BorderBrush="{x:Static SystemColors.ActiveBorderBrush}"
+                                                BorderThickness="1"
+                                                CornerRadius="8">
+                                                <ContentPresenter
+                                                    Name="adaptiveCard"
+                                                    Margin="3,3"
+                                                    Content="{Binding}" />
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </Grid>
+                        </StackPanel>
+                        <DataTemplate.Triggers>
+                            <DataTrigger Binding="{Binding Path=From}" Value="User">
+                                <Setter TargetName="textBubble" Property="Background" Value="SteelBlue" />
+                                <Setter TargetName="bubbleTip" Property="Fill" Value="SteelBlue" />
+                                <Setter TargetName="bubbleTip" Property="Points" Value="0,0 0,5 16,0" />
+                                <Setter TargetName="bubbleTip" Property="Margin" Value="5,-1,0,0" />
+                                <Setter TargetName="textBubble" Property="HorizontalAlignment" Value="Left" />
+                                <Setter TargetName="textBlock" Property="HorizontalAlignment" Value="Left" />
+                                <Setter TargetName="bubbleTip" Property="HorizontalAlignment" Value="Left" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Path=From}" Value="Bot">
+                                <Setter TargetName="bubbleTip" Property="Points" Value="0,0 -16,0 0,5" />
+                                <Setter TargetName="bubbleTip" Property="Margin" Value="0,-1,5,0" />
+                                <Setter TargetName="textBubble" Property="Background" Value="ForestGreen" />
+                                <Setter TargetName="bubbleTip" Property="Fill" Value="ForestGreen" />
+                                <Setter TargetName="textBubble" Property="HorizontalAlignment" Value="Right" />
+                                <Setter TargetName="textBlock" Property="HorizontalAlignment" Value="Right" />
+                                <Setter TargetName="bubbleTip" Property="HorizontalAlignment" Value="Right" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Path=From}" Value="Channel">
+                                <Setter TargetName="textBubble" Property="Background" Value="DarkRed" />
+                                <Setter TargetName="bubbleTip" Property="Points" Value="" />
+                                <Setter TargetName="textBubble" Property="HorizontalAlignment" Value="Center" />
+                                <Setter TargetName="textBlock" Property="HorizontalAlignment" Value="Center" />
+                            </DataTrigger>
+                        </DataTemplate.Triggers>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
             <Grid Grid.Row="1" FocusManager.FocusedElement="{Binding ElementName=statusBox}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -64,6 +214,7 @@
                     <Button
                         Width="35"
                         Height="35"
+                        Margin="0,10,0,10"
                         Click="Microphone_Click">
                         <Image Source="resources/microphone.png" Stretch="UniformToFill" />
                     </Button>

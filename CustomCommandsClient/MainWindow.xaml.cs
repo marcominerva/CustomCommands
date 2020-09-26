@@ -1,4 +1,5 @@
 ﻿using CustomCommandsClient.Audio;
+using CustomCommandsClient.Models;
 using Microsoft.Bot.Schema;
 using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;
@@ -7,6 +8,7 @@ using NAudio.Wave;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,10 +26,13 @@ namespace CustomCommandsClient
         private bool waitingForUserInput = false;
         private ListenState listeningState = ListenState.NotListening;
 
+        public ObservableCollection<MessageDisplay> Messages { get; private set; } = new ObservableCollection<MessageDisplay>();
+
         public MainWindow()
         {
             InitializeComponent();
 
+            ConversationHistory.ItemsSource = Messages;
             player.PlaybackStopped += Player_PlaybackStopped;
         }
 
@@ -92,20 +97,20 @@ namespace CustomCommandsClient
                 var statusMessage = $"Error ({e.ErrorCode}): {e.ErrorDetails}";
                 UpdateStatus(statusMessage);
                 listeningState = ListenState.NotListening;
+
+                AddMessage(new MessageDisplay(statusMessage, Sender.Channel));
             }
         }
 
         private void Connector_Recognized(object sender, SpeechRecognitionEventArgs e)
         {
             System.Diagnostics.Debug.WriteLine($"Connector_Recognized ({e.Result.Reason}): {e.Result.Text}");
-            RunOnUiThread(() =>
+            UpdateStatus(string.Empty);
+
+            if (!string.IsNullOrWhiteSpace(e.Result.Text) && e.Result.Reason == ResultReason.RecognizedSpeech)
             {
-                UpdateStatus(string.Empty);
-                if (!string.IsNullOrWhiteSpace(e.Result.Text) && e.Result.Reason == ResultReason.RecognizedSpeech)
-                {
-                    //Messages.Add(new MessageDisplay(e.Result.Text, Sender.User));
-                }
-            });
+                AddMessage(new MessageDisplay(e.Result.Text, Sender.User));
+            }
         }
 
         private void Connector_Recognizing(object sender, SpeechRecognitionEventArgs e)
@@ -152,6 +157,8 @@ namespace CustomCommandsClient
             }
             else if (activity.Type == ActivityTypes.Message)
             {
+                AddMessage(new MessageDisplay(activity.Text, Sender.Bot));
+
                 if (activity.InputHint == InputHints.ExpectingInput)
                 {
                     // The activity expects a further user input.
@@ -163,6 +170,8 @@ namespace CustomCommandsClient
         private async void StatusBox_KeyUp(object sender, KeyEventArgs e)
         {
             StopPlayback();
+            waitingForUserInput = false;
+
             if (e.Key != Key.Enter)
             {
                 return;
@@ -176,7 +185,7 @@ namespace CustomCommandsClient
             statusBox.Clear();
             var jsonConnectorActivity = JsonConvert.SerializeObject(activity);
 
-            //Messages.Add(new MessageDisplay(bfActivity.Text, Sender.User));
+            AddMessage(new MessageDisplay(activity.Text, Sender.User));
             var id = await connector.SendActivityAsync(jsonConnectorActivity);
             System.Diagnostics.Debug.WriteLine($"SendActivityAsync called, id = {id}");
         }
@@ -272,31 +281,47 @@ namespace CustomCommandsClient
 
         private void RunOnUiThread(Action action)
         {
-            statusBox.Dispatcher.InvokeAsync(action);
+            Dispatcher.InvokeAsync(action);
         }
 
         private void UpdateStatus(string message, bool tentative = true)
         {
-            if (Thread.CurrentThread != statusOverlay.Dispatcher.Thread)
+            if (Thread.CurrentThread != Dispatcher.Thread)
             {
                 RunOnUiThread(() =>
                 {
                     UpdateStatus(message, tentative);
                 });
-
-                return;
-            }
-
-            const string pad = "   ";
-
-            if (tentative)
-            {
-                statusOverlay.Text = pad + message;
             }
             else
             {
-                statusBox.Clear();
-                statusBox.Text = pad + message;
+                const string pad = "   ";
+
+                if (tentative)
+                {
+                    statusOverlay.Text = pad + message;
+                }
+                else
+                {
+                    statusBox.Clear();
+                    statusBox.Text = pad + message;
+                }
+            }
+        }
+
+        private void AddMessage(MessageDisplay message)
+        {
+            if (Thread.CurrentThread != Dispatcher.Thread)
+            {
+                RunOnUiThread(() =>
+                {
+                    AddMessage(message);
+                });
+            }
+            else
+            {
+                Messages.Add(message);
+                ConversationHistory.ScrollIntoView(ConversationHistory.Items[^1]);
             }
         }
     }
