@@ -22,7 +22,6 @@
                 x:Name="ConversationHistory"
                 Margin="0,10,0,0"
                 HorizontalContentAlignment="Stretch"
-                ItemsSource="{Binding Messages}"
                 ScrollViewer.CanContentScroll="False"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                 <ListView.ItemContainerStyle>

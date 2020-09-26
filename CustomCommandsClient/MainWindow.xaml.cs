@@ -138,11 +138,8 @@ namespace CustomCommandsClient
                     }
                 });
 
-                var channelData = activity.GetChannelData<SpeechChannelData>();
-                var id = channelData?.ConversationalAiData?.RequestInfo?.InteractionId;
-
                 var wavStream = new RawSourceWaveStream(stream, new WaveFormat(16000, 16, 1));
-                playbackStreams.Enqueue(new WavQueueEntry(id, false, stream, wavStream));
+                playbackStreams.Enqueue(new WavQueueEntry(stream, wavStream));
 
                 if (player.PlaybackState != PlaybackState.Playing)
                 {
@@ -203,7 +200,7 @@ namespace CustomCommandsClient
 
             if (entry != null)
             {
-                System.Diagnostics.Debug.WriteLine($"START playing {entry.Id}");
+                System.Diagnostics.Debug.WriteLine($"START playing...");
                 player.Init(entry.Reader);
                 player.Play();
                 return true;
@@ -299,12 +296,12 @@ namespace CustomCommandsClient
 
                 if (tentative)
                 {
-                    statusOverlay.Text = pad + message;
+                    statusOverlay.Text = $"{pad}{message}";
                 }
                 else
                 {
                     statusBox.Clear();
-                    statusBox.Text = pad + message;
+                    statusBox.Text = $"{pad}{message}";
                 }
             }
         }
