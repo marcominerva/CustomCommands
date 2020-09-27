@@ -9,17 +9,17 @@ namespace DeviceControl.Services
 
         public GpioService()
         {
-            //gpioController = new GpioController(PinNumberingScheme.Board);
+            gpioController = new GpioController(PinNumberingScheme.Board);
         }
 
         public Task SetPinAsync(int pinNumber, PinValue value)
         {
-            //if (!gpioController.IsPinOpen(pinNumber))
-            //{
-            //    gpioController.OpenPin(pinNumber, PinMode.Output);
-            //}
+            if (!gpioController.IsPinOpen(pinNumber))
+            {
+                gpioController.OpenPin(pinNumber, PinMode.Output);
+            }
 
-            //gpioController.Write(pinNumber, value);
+            gpioController.Write(pinNumber, value);
 
             return Task.CompletedTask;
         }

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using System.Runtime.InteropServices;
 
 namespace DeviceControl
 {
@@ -40,7 +41,10 @@ namespace DeviceControl
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseHttpsRedirection();
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                app.UseHttpsRedirection();
+            }
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
