@@ -12,10 +12,12 @@ namespace DeviceControl.Controllers
     [Produces(MediaTypeNames.Application.Json)]
     public class DeviceController : ControllerBase
     {
+        private readonly GpioService gpioService;
         private readonly LedService ledService;
 
-        public DeviceController(LedService ledService)
+        public DeviceController(GpioService gpioService, LedService ledService)
         {
+            this.gpioService = gpioService;
             this.ledService = ledService;
         }
 
@@ -24,6 +26,15 @@ namespace DeviceControl.Controllers
         [ProducesDefaultResponseType]
         public IActionResult DeviceCommand(DeviceCommand command)
         {
+            return NoContent();
+        }
+
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [HttpPost("pin")]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> PinCommand(PinCommand command)
+        {
+            await gpioService.SetPinAsync(command);
             return NoContent();
         }
 

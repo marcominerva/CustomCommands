@@ -1,15 +1,15 @@
 ﻿using DeviceControl.Models;
 using System;
-using System.Device.Gpio;
 using System.Threading.Tasks;
+using PinValue = System.Device.Gpio.PinValue;
 
 namespace DeviceControl.Services
 {
     public class LedService
     {
-        private const int redPinNumber = 18;
-        private const int greenPinNumber = 20;
-        private const int bluePinNumber = 22;
+        private const int redPinNumber = 36;
+        private const int greenPinNumber = 37;
+        private const int bluePinNumber = 38;
 
         private readonly GpioService gpioService;
 
