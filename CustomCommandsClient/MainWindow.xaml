@@ -45,7 +45,7 @@
                                             <Style TargetType="{x:Type ColumnDefinition}">
                                                 <Setter Property="Width" Value="1*" />
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Path=From}" Value="User">
+                                                    <DataTrigger Binding="{Binding Path=From}" Value="Bot">
                                                         <Setter Property="Width" Value="0" />
                                                     </DataTrigger>
                                                 </Style.Triggers>
@@ -58,7 +58,7 @@
                                             <Style TargetType="{x:Type ColumnDefinition}">
                                                 <Setter Property="Width" Value="1*" />
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Path=From}" Value="Bot">
+                                                    <DataTrigger Binding="{Binding Path=From}" Value="User">
                                                         <Setter Property="Width" Value="0" />
                                                     </DataTrigger>
                                                 </Style.Triggers>
@@ -108,27 +108,27 @@
                             </Grid>
                         </StackPanel>
                         <DataTemplate.Triggers>
-                            <DataTrigger Binding="{Binding Path=From}" Value="User">
-                                <Setter TargetName="textBubble" Property="Background" Value="SteelBlue" />
-                                <Setter TargetName="bubbleTip" Property="Fill" Value="SteelBlue" />
+                            <DataTrigger Binding="{Binding Path=From}" Value="Bot">
                                 <Setter TargetName="bubbleTip" Property="Points" Value="0,0 0,5 16,0" />
                                 <Setter TargetName="bubbleTip" Property="Margin" Value="5,-1,0,0" />
+                                <Setter TargetName="bubbleTip" Property="Fill" Value="SteelBlue" />
+                                <Setter TargetName="bubbleTip" Property="HorizontalAlignment" Value="Left" />
+                                <Setter TargetName="textBubble" Property="Background" Value="SteelBlue" />
                                 <Setter TargetName="textBubble" Property="HorizontalAlignment" Value="Left" />
                                 <Setter TargetName="textBlock" Property="HorizontalAlignment" Value="Left" />
-                                <Setter TargetName="bubbleTip" Property="HorizontalAlignment" Value="Left" />
                             </DataTrigger>
-                            <DataTrigger Binding="{Binding Path=From}" Value="Bot">
+                            <DataTrigger Binding="{Binding Path=From}" Value="User">
                                 <Setter TargetName="bubbleTip" Property="Points" Value="0,0 -16,0 0,5" />
                                 <Setter TargetName="bubbleTip" Property="Margin" Value="0,-1,5,0" />
-                                <Setter TargetName="textBubble" Property="Background" Value="ForestGreen" />
                                 <Setter TargetName="bubbleTip" Property="Fill" Value="ForestGreen" />
+                                <Setter TargetName="bubbleTip" Property="HorizontalAlignment" Value="Right" />
+                                <Setter TargetName="textBubble" Property="Background" Value="ForestGreen" />
                                 <Setter TargetName="textBubble" Property="HorizontalAlignment" Value="Right" />
                                 <Setter TargetName="textBlock" Property="HorizontalAlignment" Value="Right" />
-                                <Setter TargetName="bubbleTip" Property="HorizontalAlignment" Value="Right" />
                             </DataTrigger>
                             <DataTrigger Binding="{Binding Path=From}" Value="Channel">
-                                <Setter TargetName="textBubble" Property="Background" Value="DarkRed" />
                                 <Setter TargetName="bubbleTip" Property="Points" Value="" />
+                                <Setter TargetName="textBubble" Property="Background" Value="DarkRed" />
                                 <Setter TargetName="textBubble" Property="HorizontalAlignment" Value="Center" />
                                 <Setter TargetName="textBlock" Property="HorizontalAlignment" Value="Center" />
                                 <Setter TargetName="textBlock" Property="TextAlignment" Value="Center" />
