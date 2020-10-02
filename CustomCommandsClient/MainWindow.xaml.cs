@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,6 +23,7 @@ namespace CustomCommandsClient
         private DialogServiceConnector connector = null;
         private readonly WaveOutEvent player = new WaveOutEvent();
         private readonly Queue<WavQueueEntry> playbackStreams = new Queue<WavQueueEntry>();
+        private KeywordRecognitionModel wakeWordModel;
 
         private bool waitingForUserInput = false;
         private ListenState listeningState = ListenState.NotListening;
@@ -59,6 +61,9 @@ namespace CustomCommandsClient
 
             // Open a connection to Direct Line Speech channel
             await connector.ConnectAsync();
+
+            wakeWordModel = KeywordRecognitionModel.FromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Computer.table"));
+            _ = connector.StartKeywordRecognitionAsync(wakeWordModel);
         }
 
         private void Connector_SessionStarted(object sender, SessionEventArgs e)
@@ -321,6 +326,14 @@ namespace CustomCommandsClient
                 Messages.Add(message);
                 ConversationHistory.ScrollIntoView(ConversationHistory.Items[^1]);
             }
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            connector?.Dispose();
+            player?.Dispose();
+
+            base.OnClosed(e);
         }
     }
 }

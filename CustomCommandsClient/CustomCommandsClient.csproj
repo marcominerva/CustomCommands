@@ -20,4 +20,10 @@
     <Resource Include="Resources\Microphone.png" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="computer.table">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
