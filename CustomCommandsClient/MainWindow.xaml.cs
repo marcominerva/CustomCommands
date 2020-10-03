@@ -15,15 +15,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using Debug = System.Diagnostics.Debug;
 
 namespace CustomCommandsClient
 {
     public partial class MainWindow : Window
     {
+        private AudioConfig audioConfig = null;
         private DialogServiceConnector connector = null;
+        private KeywordRecognizer keywordRecognizer = null;
+        private KeywordRecognitionModel keywordRecognitionModel = null;
+
         private readonly WaveOutEvent player = new WaveOutEvent();
         private readonly Queue<WavQueueEntry> playbackStreams = new Queue<WavQueueEntry>();
-        private KeywordRecognitionModel wakeWordModel;
 
         private bool waitingForUserInput = false;
         private ListenState listeningState = ListenState.NotListening;
@@ -42,16 +46,17 @@ namespace CustomCommandsClient
         {
             await InitSpeechConnectorAsync();
 
-            UpdateStatus("New conversation started - type or press the microphone button");
+            UpdateStatus("New conversation started - type, press the microphone button, or say the wake word");
         }
 
         private async Task InitSpeechConnectorAsync()
         {
+            audioConfig = AudioConfig.FromDefaultMicrophoneInput();
             var config = CustomCommandsConfig.FromSubscription(Constants.CustomCommandsAppId, Constants.SubscriptionKey, Constants.Region);
             config.Language = Constants.Language;
 
             // Create a new Dialog Service Connector for the above configuration and register to receive events
-            connector = new DialogServiceConnector(config, AudioConfig.FromDefaultMicrophoneInput());
+            connector = new DialogServiceConnector(config, audioConfig);
             connector.ActivityReceived += Connector_ActivityReceived;
             connector.Recognizing += Connector_Recognizing;
             connector.Recognized += Connector_Recognized;
@@ -62,13 +67,28 @@ namespace CustomCommandsClient
             // Open a connection to Direct Line Speech channel
             await connector.ConnectAsync();
 
-            wakeWordModel = KeywordRecognitionModel.FromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Computer.table"));
-            _ = connector.StartKeywordRecognitionAsync(wakeWordModel);
+            // Start the Keyword Recognizer.
+            keywordRecognitionModel = KeywordRecognitionModel.FromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Computer.table"));
+            keywordRecognizer = new KeywordRecognizer(audioConfig);
+            keywordRecognizer.Recognized += KeywordRecognizer_Recognized;
+            StartKeywordRecognition();
+        }
+
+        private void KeywordRecognizer_Recognized(object sender, KeywordRecognitionEventArgs e)
+        {
+            Debug.WriteLine($"{nameof(KeywordRecognizer_Recognized)} ({e.Result.Reason}): {e.Result.Text}");
+
+            if (e.Result.Reason == ResultReason.RecognizedKeyword)
+            {
+                // Keyword has been recognized, starts the actual speech recognition.
+                StartListening();
+            }
         }
 
         private void Connector_SessionStarted(object sender, SessionEventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine($"SessionStarted event, id = {e.SessionId}");
+            Debug.WriteLine($"SessionStarted event, id = {e.SessionId}");
+
             UpdateStatus("Listening ...");
             player.Stop();
 
@@ -77,10 +97,9 @@ namespace CustomCommandsClient
 
         private void Connector_SessionStopped(object sender, SessionEventArgs e)
         {
-            var message = "Stopped listening";
-            System.Diagnostics.Debug.WriteLine($"SessionStopped event, id = {e.SessionId}");
+            Debug.WriteLine($"SessionStopped event, id = {e.SessionId}");
 
-            UpdateStatus(message);
+            UpdateStatus("Stopped listening");
             listeningState = ListenState.NotListening;
         }
 
@@ -109,7 +128,8 @@ namespace CustomCommandsClient
 
         private void Connector_Recognized(object sender, SpeechRecognitionEventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine($"Connector_Recognized ({e.Result.Reason}): {e.Result.Text}");
+            Debug.WriteLine($"{nameof(Connector_Recognized)} ({e.Result.Reason}): {e.Result.Text}");
+
             UpdateStatus(string.Empty);
 
             if (!string.IsNullOrWhiteSpace(e.Result.Text) && e.Result.Reason == ResultReason.RecognizedSpeech)
@@ -167,30 +187,35 @@ namespace CustomCommandsClient
                     // The activity expects a further user input.
                     waitingForUserInput = true;
                 }
+                else
+                {
+                    // No further user input is expected, restart the keyword recognizer.
+                    StartKeywordRecognition();
+                }
             }
         }
 
         private async void StatusBox_KeyUp(object sender, KeyEventArgs e)
         {
+            StopKeywordRecognition();
             StopPlayback();
             waitingForUserInput = false;
 
-            if (e.Key != Key.Enter)
+            if (e.Key == Key.Enter)
             {
-                return;
+                e.Handled = true;
+
+                var activity = Activity.CreateMessageActivity();
+                activity.Text = statusBox.Text;
+
+                statusBox.Clear();
+                var jsonConnectorActivity = JsonConvert.SerializeObject(activity);
+
+                AddMessage(new MessageDisplay(activity.Text, Sender.User));
+                var id = await connector.SendActivityAsync(jsonConnectorActivity);
+
+                Debug.WriteLine($"SendActivityAsync called, id = {id}");
             }
-
-            e.Handled = true;
-
-            var activity = Activity.CreateMessageActivity();
-            activity.Text = statusBox.Text;
-
-            statusBox.Clear();
-            var jsonConnectorActivity = JsonConvert.SerializeObject(activity);
-
-            AddMessage(new MessageDisplay(activity.Text, Sender.User));
-            var id = await connector.SendActivityAsync(jsonConnectorActivity);
-            System.Diagnostics.Debug.WriteLine($"SendActivityAsync called, id = {id}");
         }
 
         private bool PlayFromAudioQueue()
@@ -206,14 +231,22 @@ namespace CustomCommandsClient
 
             if (entry != null)
             {
-                System.Diagnostics.Debug.WriteLine($"START playing...");
+                Debug.WriteLine($"Start playing...");
+
                 player.Init(entry.Reader);
                 player.Play();
+
                 return true;
             }
 
             return false;
         }
+
+        private void StartKeywordRecognition()
+            => _ = keywordRecognizer.RecognizeOnceAsync(keywordRecognitionModel);
+
+        private void StopKeywordRecognition()
+            => _ = keywordRecognizer.StopRecognitionAsync();
 
         private void StartListening()
         {
@@ -224,7 +257,8 @@ namespace CustomCommandsClient
                     listeningState = ListenState.Initiated;
 
                     _ = connector.ListenOnceAsync();
-                    System.Diagnostics.Debug.WriteLine("Started ListenOnceAsync");
+
+                    Debug.WriteLine("Started ListenOnceAsync");
                 }
                 catch (Exception ex)
                 {
@@ -235,6 +269,7 @@ namespace CustomCommandsClient
 
         private void Microphone_Click(object sender, RoutedEventArgs e)
         {
+            StopKeywordRecognition();
             StopPlayback();
 
             if (listeningState == ListenState.NotListening)
@@ -328,10 +363,14 @@ namespace CustomCommandsClient
             }
         }
 
-        protected override void OnClosed(EventArgs e)
+        protected override async void OnClosed(EventArgs e)
         {
-            connector?.Dispose();
-            player?.Dispose();
+            await keywordRecognizer.StopRecognitionAsync();
+            keywordRecognizer.Dispose();
+
+            connector.Dispose();
+            player.Dispose();
+            audioConfig.Dispose();
 
             base.OnClosed(e);
         }
