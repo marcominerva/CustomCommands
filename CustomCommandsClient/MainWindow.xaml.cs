@@ -280,6 +280,8 @@ namespace CustomCommandsClient
 
         private void Player_PlaybackStopped(object sender, StoppedEventArgs e)
         {
+            Debug.WriteLine($"Stopped playing");
+
             lock (playbackStreams)
             {
                 // Checks if there is another audio message to play.
