@@ -1,5 +1,4 @@
-﻿using CustomCommandsClient.Audio;
-using CustomCommandsClient.Models;
+﻿using CustomCommandsClient.Models;
 using Microsoft.Bot.Schema;
 using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;
@@ -27,7 +26,7 @@ namespace CustomCommandsClient
         private KeywordRecognitionModel keywordRecognitionModel = null;
 
         private readonly WaveOutEvent player = new WaveOutEvent();
-        private readonly Queue<WavQueueEntry> playbackStreams = new Queue<WavQueueEntry>();
+        private readonly Queue<RawSourceWaveStream> playbackStreams = new Queue<RawSourceWaveStream>();
 
         private bool waitingForUserInput = false;
         private ListenState listeningState = ListenState.NotListening;
@@ -151,7 +150,7 @@ namespace CustomCommandsClient
             if (e.HasAudio && activity.Speak != null)
             {
                 var audio = e.Audio;
-                var stream = new MemoryStream();
+                using var stream = new MemoryStream();
 
                 await Task.Run(() =>
                 {
@@ -163,9 +162,9 @@ namespace CustomCommandsClient
                     }
                 });
 
-                stream.Position = 0;
-                var wavStream = new RawSourceWaveStream(stream, new WaveFormat(16000, 16, 1));
-                playbackStreams.Enqueue(new WavQueueEntry(stream, wavStream));
+                var byteStream = stream.ToArray();
+                var wavStream = new RawSourceWaveStream(byteStream, 0, byteStream.Length, new WaveFormat(16000, 16, 1));
+                playbackStreams.Enqueue(wavStream);
 
                 if (player.PlaybackState != PlaybackState.Playing)
                 {
@@ -221,7 +220,7 @@ namespace CustomCommandsClient
 
         private bool PlayFromAudioQueue()
         {
-            WavQueueEntry entry = null;
+            RawSourceWaveStream entry = null;
             lock (playbackStreams)
             {
                 if (playbackStreams.Any())
@@ -234,7 +233,7 @@ namespace CustomCommandsClient
             {
                 Debug.WriteLine($"Start playing...");
 
-                player.Init(entry.Reader);
+                player.Init(entry);
                 player.Play();
 
                 return true;
@@ -292,8 +291,7 @@ namespace CustomCommandsClient
                 }
 
                 var entry = playbackStreams.Dequeue();
-                entry.Stream.Dispose();
-                entry.Reader.Dispose();
+                entry.Dispose();
             }
 
             if (!PlayFromAudioQueue())

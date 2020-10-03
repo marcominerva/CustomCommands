@@ -1,4 +1,4 @@
-﻿namespace CustomCommandsClient.Audio
+﻿namespace CustomCommandsClient.Models
 {
     public enum ListenState
     {
