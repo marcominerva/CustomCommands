@@ -151,7 +151,7 @@ namespace CustomCommandsClient
             if (e.HasAudio && activity.Speak != null)
             {
                 var audio = e.Audio;
-                var stream = new ProducerConsumerStream();
+                var stream = new MemoryStream();
 
                 await Task.Run(() =>
                 {
@@ -163,6 +163,7 @@ namespace CustomCommandsClient
                     }
                 });
 
+                stream.Position = 0;
                 var wavStream = new RawSourceWaveStream(stream, new WaveFormat(16000, 16, 1));
                 playbackStreams.Enqueue(new WavQueueEntry(stream, wavStream));
 
@@ -291,7 +292,8 @@ namespace CustomCommandsClient
                 }
 
                 var entry = playbackStreams.Dequeue();
-                entry.Stream.Close();
+                entry.Stream.Dispose();
+                entry.Reader.Dispose();
             }
 
             if (!PlayFromAudioQueue())

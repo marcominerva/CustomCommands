@@ -1,14 +1,15 @@
 ﻿using NAudio.Wave;
+using System.IO;
 
 namespace CustomCommandsClient.Audio
 {
     public class WavQueueEntry
     {
-        public ProducerConsumerStream Stream { get; }
+        public Stream Stream { get; }
 
         public RawSourceWaveStream Reader { get; }
 
-        public WavQueueEntry(ProducerConsumerStream stream, RawSourceWaveStream reader) =>
+        public WavQueueEntry(Stream stream, RawSourceWaveStream reader) =>
             (Stream, Reader) = (stream, reader);
     }
 }
