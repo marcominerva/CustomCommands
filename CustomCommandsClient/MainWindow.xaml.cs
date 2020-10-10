@@ -22,8 +22,6 @@ namespace CustomCommandsClient
     {
         private AudioConfig audioConfig = null;
         private DialogServiceConnector connector = null;
-        private KeywordRecognizer keywordRecognizer = null;
-        private KeywordRecognitionModel keywordRecognitionModel = null;
 
         private readonly WaveOutEvent player = new WaveOutEvent();
         private readonly Queue<RawSourceWaveStream> playbackStreams = new Queue<RawSourceWaveStream>();
@@ -43,12 +41,12 @@ namespace CustomCommandsClient
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            await InitSpeechConnectorAsync();
+            await InitializeSpeechConnectorAsync();
 
             UpdateStatus("New conversation started - type, press the microphone button, or say the wake word");
         }
 
-        private async Task InitSpeechConnectorAsync()
+        private async Task InitializeSpeechConnectorAsync()
         {
             audioConfig = AudioConfig.FromDefaultMicrophoneInput();
             var config = CustomCommandsConfig.FromSubscription(Constants.CustomCommandsAppId, Constants.SubscriptionKey, Constants.Region);
@@ -66,22 +64,8 @@ namespace CustomCommandsClient
             // Open a connection to Direct Line Speech channel
             await connector.ConnectAsync();
 
-            // Start the Keyword Recognizer.
-            keywordRecognitionModel = KeywordRecognitionModel.FromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Computer.table"));
-            keywordRecognizer = new KeywordRecognizer(audioConfig);
-            keywordRecognizer.Recognized += KeywordRecognizer_Recognized;
-            StartKeywordRecognition();
-        }
-
-        private void KeywordRecognizer_Recognized(object sender, KeywordRecognitionEventArgs e)
-        {
-            Debug.WriteLine($"{nameof(KeywordRecognizer_Recognized)} ({e.Result.Reason}): {e.Result.Text}");
-
-            if (e.Result.Reason == ResultReason.RecognizedKeyword)
-            {
-                // Keyword has been recognized, starts the actual speech recognition.
-                StartListening();
-            }
+            var keywordRecognitionModel = KeywordRecognitionModel.FromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Computer.table"));
+            _ = connector.StartKeywordRecognitionAsync(keywordRecognitionModel);
         }
 
         private void Connector_SessionStarted(object sender, SessionEventArgs e)
@@ -187,17 +171,11 @@ namespace CustomCommandsClient
                     // The activity expects a further user input.
                     waitingForUserInput = true;
                 }
-                else
-                {
-                    // No further user input is expected, restart the keyword recognizer.
-                    StartKeywordRecognition();
-                }
             }
         }
 
         private async void StatusBox_KeyUp(object sender, KeyEventArgs e)
         {
-            StopKeywordRecognition();
             StopPlayback();
             waitingForUserInput = false;
 
@@ -242,12 +220,6 @@ namespace CustomCommandsClient
             return false;
         }
 
-        private void StartKeywordRecognition()
-            => _ = keywordRecognizer.RecognizeOnceAsync(keywordRecognitionModel);
-
-        private void StopKeywordRecognition()
-            => _ = keywordRecognizer.StopRecognitionAsync();
-
         private void StartListening()
         {
             if (listeningState == ListenState.NotListening)
@@ -269,7 +241,6 @@ namespace CustomCommandsClient
 
         private void Microphone_Click(object sender, RoutedEventArgs e)
         {
-            StopKeywordRecognition();
             StopPlayback();
 
             if (listeningState == ListenState.NotListening)
@@ -365,11 +336,8 @@ namespace CustomCommandsClient
             }
         }
 
-        protected override async void OnClosed(EventArgs e)
+        protected override void OnClosed(EventArgs e)
         {
-            await keywordRecognizer.StopRecognitionAsync();
-            keywordRecognizer.Dispose();
-
             connector.Dispose();
             player.Dispose();
             audioConfig.Dispose();
