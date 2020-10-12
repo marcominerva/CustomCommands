@@ -4,7 +4,7 @@ A sample that shows how to integrate Custom Commands in a real application, with
 The repository consists of:
   * [DeviceControl.json](https://github.com/marcominerva/CustomCommands/blob/master/DeviceControl.json), that contains the Custom Commands definition. You can directly import it in the [Microsoft Speech Portal](https://speech.microsoft.com/portal)
   * [CustomCommandsClient](https://github.com/marcominerva/CustomCommands/tree/master/CustomCommandsClient), a .NET Core WPF application to test Custom Commands interations, both via text and speech. To use it you just need to set the required service keys in the [Constants.cs](https://github.com/marcominerva/CustomCommands/blob/master/CustomCommandsClient/Constants.cs) file
-  * [DeviceControl](https://github.com/marcominerva/CustomCommands/tree/master/DeviceControl), an ASP.NET Core Web API project that can be deployed on a Raspeberry Pi and provides a method to control a led connected to the board Take a look to [LedService](https://github.com/marcominerva/CustomCommands/blob/master/DeviceControl/Services/LedService.cs) file to see the pin configurations.
+  * [DeviceControl](https://github.com/marcominerva/CustomCommands/tree/master/DeviceControl), an ASP.NET Core Web API project that can be deployed on a Raspeberry Pi and provides a method to control a led connected to the board. Take a look to the [LedService](https://github.com/marcominerva/CustomCommands/blob/master/DeviceControl/Services/LedService.cs) file to see Pin configurations.
   
 **Contribute**
 
