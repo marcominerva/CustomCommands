@@ -39,6 +39,10 @@
     "font": "Microsoft Server Speech Text to Speech Voice (en-US, AriaNeural)",
     "locale": "en-US"
   },
+  "registeredKeywords": [
+    "computer",
+    "hey computer"
+  ],
   "webEndpoints": [
     {
       "name": "SetLedColor",
