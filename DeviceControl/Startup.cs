@@ -30,6 +30,7 @@ namespace DeviceControl
                 });
 
             services.AddSingleton<GpioService>();
+            services.AddSingleton<HumitureService>();
             services.AddScoped<LedService>();
 
             // Register the Swagger generator, defining 1 or more Swagger documents

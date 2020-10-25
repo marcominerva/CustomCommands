@@ -1,4 +1,4 @@
-﻿using DeviceControl.Models;
+﻿using DeviceControl.Commands;
 using System;
 using System.Threading.Tasks;
 using PinValue = System.Device.Gpio.PinValue;

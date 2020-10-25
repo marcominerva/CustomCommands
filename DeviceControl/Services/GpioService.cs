@@ -1,4 +1,4 @@
-﻿using DeviceControl.Models;
+﻿using DeviceControl.Commands;
 using System.Device.Gpio;
 using System.Threading.Tasks;
 using PinValue = System.Device.Gpio.PinValue;
@@ -27,6 +27,6 @@ namespace DeviceControl.Services
         }
 
         public Task SetPinAsync(PinCommand command)
-            => SetPinAsync(command.PinNumber, command.Value == Models.PinValue.High ? PinValue.High : PinValue.Low);
+            => SetPinAsync(command.PinNumber, command.Value == Commands.PinValue.High ? PinValue.High : PinValue.Low);
     }
 }

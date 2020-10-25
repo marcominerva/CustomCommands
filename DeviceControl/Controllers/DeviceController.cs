@@ -1,15 +1,11 @@
-﻿using DeviceControl.Models;
+﻿using DeviceControl.Commands;
 using DeviceControl.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Net.Mime;
 using System.Threading.Tasks;
 
 namespace DeviceControl.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    [Produces(MediaTypeNames.Application.Json)]
     public class DeviceController : ControllerBase
     {
         private readonly GpioService gpioService;
