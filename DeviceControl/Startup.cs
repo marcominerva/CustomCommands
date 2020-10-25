@@ -48,22 +48,38 @@ namespace DeviceControl
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Remote Device Control API", Version = "v1" });
-                c.AddSecurityDefinition(ApiKeyExtensions.ApiKeyScheme, new OpenApiSecurityScheme()
+                c.AddSecurityDefinition(ApiKeyExtensions.ApiKeyScheme + " Header", new OpenApiSecurityScheme()
                 {
                     In = ParameterLocation.Header,
                     Name = apiKeyOptions.KeyName,
                     Type = SecuritySchemeType.ApiKey,
                 });
+
+                c.AddSecurityDefinition(ApiKeyExtensions.ApiKeyScheme + " Querystring", new OpenApiSecurityScheme()
+                {
+                    In = ParameterLocation.Query,
+                    Name = apiKeyOptions.KeyName,
+                    Type = SecuritySchemeType.ApiKey,
+                });
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
-                    {
-                        new OpenApiSecurityScheme
+					{
+                         new OpenApiSecurityScheme
                         {
                             Reference = new OpenApiReference {
                                 Type = ReferenceType.SecurityScheme,
-                                Id = ApiKeyExtensions.ApiKeyScheme
+                                Id = ApiKeyExtensions.ApiKeyScheme + " Header"
                             }
-                        }, new List<string>() 
+                        }, new List<string>()
+                    },
+                    {
+                         new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = ApiKeyExtensions.ApiKeyScheme + " Querystring"
+                            }
+                        }, new List<string>()
                     }
                 });
             });
