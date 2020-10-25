@@ -20,13 +20,13 @@ namespace DeviceControl.Services
 
         public async Task<Humiture> GetHumitureAsync()
         {
-            var result = new Humiture();
+            var humiture = new Humiture();
             var temperature = dht22.Temperature;
             var humidity = dht22.Humidity;
 
             if (!dht22.IsLastReadSuccessful)
             {
-                // If the last read isn't successfull, waits and then retries.
+                // If the last read isn't successful, waits and then retries.
                 await Task.Delay(2100);
                 temperature = dht22.Temperature;
                 humidity = dht22.Humidity;
@@ -34,17 +34,16 @@ namespace DeviceControl.Services
 
             if (dht22.IsLastReadSuccessful)
             {
-                result.IsValid = true;
-                result.Temperature = Math.Round(temperature.Celsius, 2);
-                result.Humidity = Math.Round(humidity, 2);
+                humiture.Temperature = Math.Round(temperature.Celsius, 2);
+                humiture.Humidity = Math.Round(humidity, 2);
 
                 var temperatureUnit = Temperature.FromDegreesCelsius(temperature.Celsius);
                 var humidityRatio = Ratio.FromPercent(humidity);
-                result.HeatIndex = Math.Round(WeatherHelper.CalculateHeatIndex(temperatureUnit, humidityRatio).DegreesCelsius, 2);
-                result.AbsoluteHumidity = Math.Round(WeatherHelper.CalculateAbsoluteHumidity(temperatureUnit, humidityRatio).Value, 2);
+                humiture.HeatIndex = Math.Round(WeatherHelper.CalculateHeatIndex(temperatureUnit, humidityRatio).DegreesCelsius, 2);
+                humiture.AbsoluteHumidity = Math.Round(WeatherHelper.CalculateAbsoluteHumidity(temperatureUnit, humidityRatio).Value, 2);
             }
 
-            return result;
+            return humiture;
         }
     }
 }

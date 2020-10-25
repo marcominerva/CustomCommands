@@ -10,6 +10,7 @@
 
         public double? AbsoluteHumidity { get; set; }
 
-        public bool IsValid { get; set; }
+        public bool IsValid
+            => Temperature.HasValue && Humidity.HasValue && HeatIndex.HasValue && AbsoluteHumidity.HasValue;
     }
 }
