@@ -1,5 +1,4 @@
 ﻿using DeviceControl.Models;
-using Iot.Device.Common;
 using Iot.Device.DHTxx;
 using System.Device.Gpio;
 using System.Threading.Tasks;
@@ -33,10 +32,10 @@ namespace DeviceControl.Services
             if (dht22.IsLastReadSuccessful)
             {
                 result.IsValid = true;
-                result.Temperature = temperature.DegreesCelsius;
+                result.Temperature = temperature.Celsius;
                 result.Humidity = humidity;
-                result.HeatIndex = WeatherHelper.CalculateHeatIndex(temperature, humidity).DegreesCelsius;
-                result.AbsoluteHumidity = WeatherHelper.CalculateAbsoluteHumidity(temperature, humidity);
+                //result.HeatIndex = WeatherHelper.CalculateHeatIndex(temperature, humidity).DegreesCelsius;
+                //result.AbsoluteHumidity = WeatherHelper.CalculateAbsoluteHumidity(temperature, humidity);
             }
 
             return result;
