@@ -24,10 +24,43 @@
     "# SetColorCommand-Color",
     "- which color do you want to enable",
     "- tell me the color to enable",
-    "# SetColorCommand-cdc8cad0031f11ebaa3a9bcfa54db3d5",
+    "# SetColorCommand-SetLedColoronSuccess-f5a3a2000d3d11ebb45e7754f0bdba78",
     "- I'm setting the led to {Color}",
-    "- I'm enabling the {Color} color"
+    "- I'm enabling the {Color} color",
+    "# SetColorCommand-SetLedColoronFailure-f5a3a2000d3d11ebb45e7754f0bdba78",
+    "- I'm sorry, I can't enable the {Color} color",
+    "- There was an unexpected error while trying to turn the led {Color}"
   ],
+  "lgTemplatesMap": {
+    "# FallbackResponse": [
+      "- I'm sorry, I haven't understand what you mean",
+      "- I don't catch that"
+    ],
+    "# TurnOnOffCommand-SubjectDevice": [
+      "- Which device do you want to control",
+      "- Which device would you like to turn {OnOff}"
+    ],
+    "# TurnOnOffCommand-OnOff": [
+      "- Do you want to turn on or off",
+      "- Do you want to turn on or off"
+    ],
+    "# TurnOnOffCommand-29274d80015d11eb8d762da3813cab97": [
+      "- OK, turn the {SubjectDevice} {OnOff}",
+      "- So, I'm turning {OnOff} the {SubjectDevice}"
+    ],
+    "# SetColorCommand-Color": [
+      "- which color do you want to enable",
+      "- tell me the color to enable"
+    ],
+    "# SetColorCommand-SetLedColoronSuccess-f5a3a2000d3d11ebb45e7754f0bdba78": [
+      "- I'm setting the led to {Color}",
+      "- I'm enabling the {Color} color"
+    ],
+    "# SetColorCommand-SetLedColoronFailure-f5a3a2000d3d11ebb45e7754f0bdba78": [
+      "- I'm sorry, I can't enable the {Color} color",
+      "- There was an unexpected error while trying to turn the led {Color}"
+    ]
+  },
   "type": "BaseLanguage",
   "recognizer": {
     "application": "",
@@ -47,11 +80,12 @@
     {
       "name": "SetLedColor",
       "method": "POST",
-      "url": "https://f2e304749b8d.ngrok.io/api/Device/Led",
+      "url": "https://8183bf02b4c0.ngrok.io/api/Device/Led",
       "headers": {},
       "parameters": {},
       "sendFrame": false,
-      "updateFrame": false
+      "updateFrame": false,
+      "remoteUpdate": false
     }
   ],
   "globalParameters": [],
@@ -155,21 +189,21 @@
           ],
           "actions": [
             {
+              "type": "SpeechResponse",
+              "response": {
+                "type": "Template",
+                "templateName": "# TurnOnOffCommand-29274d80015d11eb8d762da3813cab97"
+              }
+            },
+            {
               "type": "SendActivity",
               "activity": {
                 "type": "event",
                 "name": "turnOnOffCommand",
                 "value": {
                   "device": "{SubjectDevice}",
-                  "onff": "{OnOff}"
+                  "onOff": "{OnOff}"
                 }
-              }
-            },
-            {
-              "type": "SpeechResponse",
-              "response": {
-                "type": "Template",
-                "templateName": "# TurnOnOffCommand-29274d80015d11eb8d762da3813cab97"
               }
             }
           ],
@@ -226,10 +260,25 @@
           ],
           "actions": [
             {
-              "type": "SpeechResponse",
-              "response": {
-                "type": "Template",
-                "templateName": "# SetColorCommand-cdc8cad0031f11ebaa3a9bcfa54db3d5"
+              "type": "CallHttpEndpoint",
+              "name": "SetLedColor",
+              "content": {
+                "color": "{Color}"
+              },
+              "parameters": "",
+              "onSuccess": {
+                "type": "SpeechResponse",
+                "response": {
+                  "type": "Template",
+                  "templateName": "# SetColorCommand-SetLedColoronSuccess-f5a3a2000d3d11ebb45e7754f0bdba78"
+                }
+              },
+              "onFailure": {
+                "type": "SpeechResponse",
+                "response": {
+                  "type": "Template",
+                  "templateName": "# SetColorCommand-SetLedColoronFailure-f5a3a2000d3d11ebb45e7754f0bdba78"
+                }
               }
             }
           ],
