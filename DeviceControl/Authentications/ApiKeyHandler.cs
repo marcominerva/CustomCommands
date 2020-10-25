@@ -18,9 +18,8 @@ namespace DeviceControl.Authentications
 
 		protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
 		{
-            if (!this.Context.Request.Query.ContainsKey(this.Options.KeyName) && this.Context.Request.Headers.ContainsKey(this.Options.KeyName))
+            if (!this.Context.Request.Query.ContainsKey(this.Options.KeyName) && !this.Context.Request.Headers.ContainsKey(this.Options.KeyName))
             {
-                // nessuna key, quindi non possiamo autenticare l'utente
                 return AuthenticateResult.NoResult();
             }
 

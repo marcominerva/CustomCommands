@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text.Json.Serialization;
 
@@ -47,6 +48,24 @@ namespace DeviceControl
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Remote Device Control API", Version = "v1" });
+                c.AddSecurityDefinition(ApiKeyExtensions.ApiKeyScheme, new OpenApiSecurityScheme()
+                {
+                    In = ParameterLocation.Header,
+                    Name = apiKeyOptions.KeyName,
+                    Type = SecuritySchemeType.ApiKey,
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = ApiKeyExtensions.ApiKeyScheme
+                            }
+                        }, new List<string>() 
+                    }
+                });
             });
         }
 
@@ -73,12 +92,15 @@ namespace DeviceControl
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Remote Device Control API");
                 c.RoutePrefix = string.Empty;
             });
-
             app.UseRouting();
+            app.UseAuthentication()
+               .UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
+                endpoints
+                    .MapControllers()
+                    .RequireAuthorization();
             });
         }
     }
