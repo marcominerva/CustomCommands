@@ -37,8 +37,11 @@ namespace DeviceControl.Services
                 result.IsValid = true;
                 result.Temperature = Math.Round(temperature.Celsius, 2);
                 result.Humidity = Math.Round(humidity, 2);
-                result.HeatIndex = WeatherHelper.CalculateHeatIndex(Temperature.FromDegreesCelsius(temperature.Celsius), Ratio.FromPercent(humidity)).DegreesCelsius;
-                result.AbsoluteHumidity = WeatherHelper.CalculateAbsoluteHumidity(Temperature.FromDegreesCelsius(temperature.Celsius), Ratio.FromPercent(humidity)).Value;
+
+                var temperatureUnit = Temperature.FromDegreesCelsius(temperature.Celsius);
+                var humidityRatio = Ratio.FromPercent(humidity);
+                result.HeatIndex = Math.Round(WeatherHelper.CalculateHeatIndex(temperatureUnit, humidityRatio).DegreesCelsius, 2);
+                result.AbsoluteHumidity = Math.Round(WeatherHelper.CalculateAbsoluteHumidity(temperatureUnit, humidityRatio).Value, 2);
             }
 
             return result;
