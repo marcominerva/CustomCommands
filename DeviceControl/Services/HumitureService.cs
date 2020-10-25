@@ -24,7 +24,7 @@ namespace DeviceControl.Services
             if (!dht22.IsLastReadSuccessful)
             {
                 // If the last read isn't successfull, waits and then retries.
-                await Task.Delay(500);
+                await Task.Delay(2100);
                 temperature = dht22.Temperature;
                 humidity = dht22.Humidity;
             }
@@ -32,8 +32,8 @@ namespace DeviceControl.Services
             if (dht22.IsLastReadSuccessful)
             {
                 result.IsValid = true;
-                result.Temperature = temperature.Celsius;
-                result.Humidity = humidity;
+                result.Temperature = Math.Round(temperature.Celsius, 2);
+                result.Humidity = Math.Round(humidity, 2);
                 //result.HeatIndex = WeatherHelper.CalculateHeatIndex(temperature, humidity).DegreesCelsius;
                 //result.AbsoluteHumidity = WeatherHelper.CalculateAbsoluteHumidity(temperature, humidity);
             }
