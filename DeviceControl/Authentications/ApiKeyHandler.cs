@@ -16,9 +16,9 @@ namespace DeviceControl.Authentications
             : base(options, logger, encoder, clock)
         { }
 
-		protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
-		{
-            if (!this.Context.Request.Query.ContainsKey(this.Options.KeyName) && this.Context.Request.Headers.ContainsKey(this.Options.KeyName))
+	protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
+	{
+            if (!this.Context.Request.Query.ContainsKey(this.Options.KeyName) && !this.Context.Request.Headers.ContainsKey(this.Options.KeyName))
             {
                 // nessuna key, quindi non possiamo autenticare l'utente
                 return AuthenticateResult.NoResult();
