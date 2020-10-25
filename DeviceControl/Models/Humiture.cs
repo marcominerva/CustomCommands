@@ -6,6 +6,10 @@
 
         public double? Humidity { get; set; }
 
+        public double? HeatIndex { get; set; }
+
+        public double? AbsoluteHumidity { get; set; }
+
         public bool IsValid { get; set; }
     }
 }
