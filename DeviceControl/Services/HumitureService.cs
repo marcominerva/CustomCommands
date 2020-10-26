@@ -13,37 +13,33 @@ namespace DeviceControl.Services
         private const int pinNumber = 7;
         private readonly Dht22 dht22;
 
+        private Humiture lastHumitureRead;
+
         public HumitureService()
         {
             dht22 = new Dht22(pinNumber, PinNumberingScheme.Board);
         }
 
-        public async Task<Humiture> GetHumitureAsync()
+        public Task<Humiture> GetHumitureAsync()
         {
-            var humiture = new Humiture();
             var temperature = dht22.Temperature;
             var humidity = dht22.Humidity;
 
-            if (!dht22.IsLastReadSuccessful)
-            {
-                // If the last read isn't successful, waits and then retries.
-                await Task.Delay(2100);
-                temperature = dht22.Temperature;
-                humidity = dht22.Humidity;
-            }
-
             if (dht22.IsLastReadSuccessful)
             {
-                humiture.Temperature = Math.Round(temperature.Celsius, 2);
-                humiture.Humidity = Math.Round(humidity, 2);
+                lastHumitureRead = new Humiture
+                {
+                    Temperature = Math.Round(temperature.Celsius, 2),
+                    Humidity = Math.Round(humidity, 2)
+                };
 
                 var temperatureUnit = Temperature.FromDegreesCelsius(temperature.Celsius);
                 var humidityRatio = Ratio.FromPercent(humidity);
-                humiture.HeatIndex = Math.Round(WeatherHelper.CalculateHeatIndex(temperatureUnit, humidityRatio).DegreesCelsius, 2);
-                humiture.AbsoluteHumidity = Math.Round(WeatherHelper.CalculateAbsoluteHumidity(temperatureUnit, humidityRatio).Value, 2);
+                lastHumitureRead.HeatIndex = Math.Round(WeatherHelper.CalculateHeatIndex(temperatureUnit, humidityRatio).DegreesCelsius, 2);
+                lastHumitureRead.AbsoluteHumidity = Math.Round(WeatherHelper.CalculateAbsoluteHumidity(temperatureUnit, humidityRatio).Value, 2);
             }
 
-            return humiture;
+            return Task.FromResult(lastHumitureRead);
         }
     }
 }

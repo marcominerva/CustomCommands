@@ -21,6 +21,11 @@ namespace DeviceControl.Controllers
         public async Task<IActionResult> Get()
         {
             var humiture = await humitureService.GetHumitureAsync();
+            if (humiture == null)
+            {
+                return StatusCode(StatusCodes.Status504GatewayTimeout);
+            }
+
             return Ok(humiture);
         }
     }
