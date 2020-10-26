@@ -1,3 +1,4 @@
+using DeviceControl.Authentications;
 using DeviceControl.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -22,6 +23,15 @@ namespace DeviceControl
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var apiKeyOptions = Configuration.GetSection("ApiKey").Get<ApiKeyOptions>();
+
+            services.AddAuthentication(ApiKeyExtensions.ApiKeyScheme)
+                .AddApiKey(options =>
+                {
+                    options.KeyName = apiKeyOptions.KeyName;
+                    options.KeyValue = apiKeyOptions.KeyValue;
+                });
+
             services.AddControllers()
                 .AddJsonOptions(options =>
                 {
@@ -65,10 +75,14 @@ namespace DeviceControl
             });
 
             app.UseRouting();
+            app.UseAuthentication()
+               .UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
+                endpoints
+                    .MapControllers()
+                    .RequireAuthorization();
             });
         }
     }
