@@ -1,12 +1,12 @@
-using DeviceControl.Authentications;
+using DeviceControl.Authentication;
 using DeviceControl.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text.Json.Serialization;
 
@@ -24,6 +24,13 @@ namespace DeviceControl
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                    options.JsonSerializerOptions.IgnoreNullValues = true;
+                });
+
             var apiKeyOptions = Configuration.GetSection("ApiKey").Get<ApiKeyOptions>();
 
             services.AddAuthentication(ApiKeyExtensions.ApiKeyScheme)
@@ -33,12 +40,11 @@ namespace DeviceControl
                     options.KeyValue = apiKeyOptions.KeyValue;
                 });
 
-            services.AddControllers()
-                .AddJsonOptions(options =>
-                {
-                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-                    options.JsonSerializerOptions.IgnoreNullValues = true;
-                });
+            services.AddAuthorization(options =>
+            {
+                var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+                options.FallbackPolicy = policy;
+            });
 
             services.AddSingleton<GpioService>();
             services.AddSingleton<HumitureService>();
@@ -48,38 +54,45 @@ namespace DeviceControl
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Remote Device Control API", Version = "v1" });
-                c.AddSecurityDefinition(ApiKeyExtensions.ApiKeyScheme + " Header", new OpenApiSecurityScheme()
+
+                var headerSecurityDefinition = $"Header {ApiKeyExtensions.ApiKeyScheme}";
+                var queryStringSecuriryDefinition = $"Query String {ApiKeyExtensions.ApiKeyScheme}";
+
+                c.AddSecurityDefinition(headerSecurityDefinition, new OpenApiSecurityScheme
                 {
                     In = ParameterLocation.Header,
                     Name = apiKeyOptions.KeyName,
                     Type = SecuritySchemeType.ApiKey,
                 });
 
-                c.AddSecurityDefinition(ApiKeyExtensions.ApiKeyScheme + " Querystring", new OpenApiSecurityScheme()
+                c.AddSecurityDefinition(queryStringSecuriryDefinition, new OpenApiSecurityScheme
                 {
                     In = ParameterLocation.Query,
                     Name = apiKeyOptions.KeyName,
                     Type = SecuritySchemeType.ApiKey,
                 });
+
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
-					{
-                         new OpenApiSecurityScheme
+                    {
+                        new OpenApiSecurityScheme
                         {
-                            Reference = new OpenApiReference {
+                            Reference = new OpenApiReference
+                            {
                                 Type = ReferenceType.SecurityScheme,
-                                Id = ApiKeyExtensions.ApiKeyScheme + " Header"
+                                Id = headerSecurityDefinition
                             }
-                        }, new List<string>()
+                        }, new string[0]
                     },
                     {
-                         new OpenApiSecurityScheme
+                        new OpenApiSecurityScheme
                         {
-                            Reference = new OpenApiReference {
+                            Reference = new OpenApiReference
+                            {
                                 Type = ReferenceType.SecurityScheme,
-                                Id = ApiKeyExtensions.ApiKeyScheme + " Querystring"
+                                Id = queryStringSecuriryDefinition
                             }
-                        }, new List<string>()
+                        }, new string[0]
                     }
                 });
             });
@@ -108,15 +121,15 @@ namespace DeviceControl
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Remote Device Control API");
                 c.RoutePrefix = string.Empty;
             });
+
             app.UseRouting();
-            app.UseAuthentication()
-               .UseAuthorization();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints
-                    .MapControllers()
-                    .RequireAuthorization();
+                endpoints.MapControllers();
             });
         }
     }
