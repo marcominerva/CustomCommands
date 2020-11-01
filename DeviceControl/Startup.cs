@@ -1,4 +1,6 @@
+using DeviceControl.Authentication;
 using DeviceControl.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -29,13 +31,70 @@ namespace DeviceControl
                     options.JsonSerializerOptions.IgnoreNullValues = true;
                 });
 
+            var apiKeyOptions = Configuration.GetSection("ApiKey").Get<ApiKeyOptions>();
+
+            services.AddAuthentication(ApiKeyExtensions.ApiKeyScheme)
+                .AddApiKey(options =>
+                {
+                    options.KeyName = apiKeyOptions.KeyName;
+                    options.KeyValue = apiKeyOptions.KeyValue;
+                });
+
+            services.AddAuthorization(options =>
+            {
+                var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+                options.FallbackPolicy = policy;
+            });
+
             services.AddSingleton<GpioService>();
+            services.AddSingleton<HumitureService>();
             services.AddScoped<LedService>();
 
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Remote Device Control API", Version = "v1" });
+
+                var headerSecurityDefinition = $"Header {ApiKeyExtensions.ApiKeyScheme}";
+                var queryStringSecuriryDefinition = $"Query String {ApiKeyExtensions.ApiKeyScheme}";
+
+                c.AddSecurityDefinition(headerSecurityDefinition, new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Name = apiKeyOptions.KeyName,
+                    Type = SecuritySchemeType.ApiKey,
+                });
+
+                c.AddSecurityDefinition(queryStringSecuriryDefinition, new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Query,
+                    Name = apiKeyOptions.KeyName,
+                    Type = SecuritySchemeType.ApiKey,
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = headerSecurityDefinition
+                            }
+                        }, new string[0]
+                    },
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = queryStringSecuriryDefinition
+                            }
+                        }, new string[0]
+                    }
+                });
             });
         }
 
@@ -64,6 +123,9 @@ namespace DeviceControl
             });
 
             app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

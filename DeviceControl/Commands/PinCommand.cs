@@ -1,4 +1,4 @@
-﻿namespace DeviceControl.Models
+﻿namespace DeviceControl.Commands
 {
     public class PinCommand
     {

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace DeviceControl.Models
+namespace DeviceControl.Commands
 {
     public class DeviceCommand
     {

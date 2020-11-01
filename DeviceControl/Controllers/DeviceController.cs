@@ -1,24 +1,18 @@
-﻿using DeviceControl.Models;
+﻿using DeviceControl.Commands;
 using DeviceControl.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Net.Mime;
 using System.Threading.Tasks;
 
 namespace DeviceControl.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    [Produces(MediaTypeNames.Application.Json)]
     public class DeviceController : ControllerBase
     {
         private readonly GpioService gpioService;
-        private readonly LedService ledService;
 
-        public DeviceController(GpioService gpioService, LedService ledService)
+        public DeviceController(GpioService gpioService)
         {
             this.gpioService = gpioService;
-            this.ledService = ledService;
         }
 
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -35,15 +29,6 @@ namespace DeviceControl.Controllers
         public async Task<IActionResult> PinCommand(PinCommand command)
         {
             await gpioService.SetPinAsync(command);
-            return NoContent();
-        }
-
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [HttpPost("led")]
-        [ProducesDefaultResponseType]
-        public async Task<IActionResult> LedCommand(LedCommand command)
-        {
-            await ledService.SetColorAsync(command);
             return NoContent();
         }
     }
