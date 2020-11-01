@@ -80,8 +80,10 @@
     {
       "name": "SetLedColor",
       "method": "POST",
-      "url": "https://8183bf02b4c0.ngrok.io/api/Device/Led",
-      "headers": {},
+      "url": "https://2ef530125150.ngrok.io/api/led",
+      "headers": {
+        "x-api-key": "kMDsOy0oYAmNnLPhkLUsNY3duldXYX2uF0AX7o37opfcxyU8f2M1vP3jjElR4W9jM3quK2dUQQ6xV3a6L8Hok6tKChYwSkWwbsLyzn3vhdnxvd6DsRZVAOcPHPLLqC1L5an4ryAWp1MeZUhfmJ64mxVNQwtanx8xCIlDR3hmxBwvVgpThfKlVZ0kUlpiVYRnzkeBFA23NVAoffLbrKIaMYpmhJgJHhpKBZ1ZI2dOrBh6wAIcrHaMb4xRjaNU8Wrq"
+      },
       "parameters": {},
       "sendFrame": false,
       "updateFrame": false,
