@@ -4,7 +4,6 @@ using Iot.Device.DHTxx;
 using System;
 using System.Device.Gpio;
 using System.Threading.Tasks;
-using UnitsNet;
 
 namespace DeviceControl.Services
 {
@@ -29,14 +28,12 @@ namespace DeviceControl.Services
             {
                 lastHumitureRead = new Humiture
                 {
-                    Temperature = Math.Round(temperature.Celsius, 2),
-                    Humidity = Math.Round(humidity, 2)
+                    Temperature = Math.Round(temperature.DegreesCelsius, 2),
+                    Humidity = Math.Round(humidity.Value, 2)
                 };
 
-                var temperatureUnit = Temperature.FromDegreesCelsius(temperature.Celsius);
-                var humidityRatio = Ratio.FromPercent(humidity);
-                lastHumitureRead.HeatIndex = Math.Round(WeatherHelper.CalculateHeatIndex(temperatureUnit, humidityRatio).DegreesCelsius, 2);
-                lastHumitureRead.AbsoluteHumidity = Math.Round(WeatherHelper.CalculateAbsoluteHumidity(temperatureUnit, humidityRatio).Value, 2);
+                lastHumitureRead.HeatIndex = Math.Round(WeatherHelper.CalculateHeatIndex(temperature, humidity).DegreesCelsius, 2);
+                lastHumitureRead.AbsoluteHumidity = Math.Round(WeatherHelper.CalculateAbsoluteHumidity(temperature, humidity).Value, 2);
             }
 
             return Task.FromResult(lastHumitureRead);
