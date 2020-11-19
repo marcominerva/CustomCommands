@@ -15,8 +15,8 @@ namespace DeviceControl.Controllers
             this.humitureService = humitureService;
         }
 
+        [HttpGet]
         [ProducesResponseType(typeof(Humiture), StatusCodes.Status200OK)]
-        [HttpGet("")]
         [ProducesDefaultResponseType]
         public async Task<IActionResult> Get()
         {

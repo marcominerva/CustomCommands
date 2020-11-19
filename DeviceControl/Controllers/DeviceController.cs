@@ -15,16 +15,16 @@ namespace DeviceControl.Controllers
             this.gpioService = gpioService;
         }
 
+        [HttpPost]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [HttpPost("")]
         [ProducesDefaultResponseType]
         public IActionResult DeviceCommand(DeviceCommand command)
         {
             return NoContent();
         }
 
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [HttpPost("pin")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesDefaultResponseType]
         public async Task<IActionResult> PinCommand(PinCommand command)
         {

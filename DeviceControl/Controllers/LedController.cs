@@ -15,8 +15,8 @@ namespace DeviceControl.Controllers
             this.ledService = ledService;
         }
 
+        [HttpPost]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [HttpPost("")]
         [ProducesDefaultResponseType]
         public async Task<IActionResult> SetLed(LedCommand command)
         {
