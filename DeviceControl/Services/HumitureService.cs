@@ -14,9 +14,9 @@ namespace DeviceControl.Services
 
         private Humiture lastHumitureRead;
 
-        public HumitureService()
+        public HumitureService(GpioService gpioService)
         {
-            dht22 = new Dht22(pinNumber, PinNumberingScheme.Board);
+            dht22 = new Dht22(pinNumber, PinNumberingScheme.Board, gpioService.GpioController, false);
         }
 
         public Task<Humiture> GetHumitureAsync()

@@ -7,21 +7,21 @@ namespace DeviceControl.Services
 {
     public class GpioService
     {
-        private readonly GpioController gpioController;
+        public GpioController GpioController { get; }
 
         public GpioService()
         {
-            gpioController = new GpioController(PinNumberingScheme.Board);
+            GpioController = new GpioController(PinNumberingScheme.Board);
         }
 
         public Task SetPinAsync(int pinNumber, PinValue value)
         {
-            if (!gpioController.IsPinOpen(pinNumber))
+            if (!GpioController.IsPinOpen(pinNumber))
             {
-                gpioController.OpenPin(pinNumber, PinMode.Output);
+                GpioController.OpenPin(pinNumber, PinMode.Output);
             }
 
-            gpioController.Write(pinNumber, value);
+            GpioController.Write(pinNumber, value);
 
             return Task.CompletedTask;
         }
