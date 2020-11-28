@@ -33,7 +33,7 @@ namespace DeviceControl.Services
                 };
 
                 lastHumitureRead.HeatIndex = Math.Round(WeatherHelper.CalculateHeatIndex(temperature, humidity).DegreesCelsius, 2);
-                lastHumitureRead.AbsoluteHumidity = Math.Round(WeatherHelper.CalculateAbsoluteHumidity(temperature, humidity).Value, 2);
+                lastHumitureRead.AbsoluteHumidity = Math.Round(WeatherHelper.CalculateAbsoluteHumidity(temperature, humidity).GramsPerCubicMeter, 2);
             }
 
             return Task.FromResult(lastHumitureRead);
