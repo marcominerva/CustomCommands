@@ -29,7 +29,7 @@ namespace DeviceControl.Services
                 lastHumitureRead = new Humiture
                 {
                     Temperature = Math.Round(temperature.DegreesCelsius, 2),
-                    Humidity = Math.Round(humidity.Value, 2)
+                    Humidity = Math.Round(humidity.Percent, 2)
                 };
 
                 lastHumitureRead.HeatIndex = Math.Round(WeatherHelper.CalculateHeatIndex(temperature, humidity).DegreesCelsius, 2);
