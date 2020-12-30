@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace DeviceControl.Authentication
 {
-    internal class ApiKeyHandler : AuthenticationHandler<ApiKeyOptions>
+    public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyOptions>
     {
-        public ApiKeyHandler(IOptionsMonitor<ApiKeyOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock)
+        public ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock)
             : base(options, logger, encoder, clock)
         {
         }
@@ -18,8 +18,8 @@ namespace DeviceControl.Authentication
         protected override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
             AuthenticateResult result;
-
             var request = Context.Request;
+
             if (!request.Query.ContainsKey(Options.KeyName) && !request.Headers.ContainsKey(Options.KeyName))
             {
                 result = AuthenticateResult.NoResult();

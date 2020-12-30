@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using System;
 using System.Runtime.InteropServices;
 using System.Text.Json.Serialization;
 
@@ -51,28 +52,28 @@ namespace DeviceControl
             services.AddScoped<LedService>();
 
             // Register the Swagger generator, defining 1 or more Swagger documents
-            services.AddSwaggerGen(c =>
+            services.AddSwaggerGen(options =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Remote Device Control API", Version = "v1" });
+                options.SwaggerDoc("v1", new OpenApiInfo { Title = "Remote Device Control API", Version = "v1" });
 
                 var headerSecurityDefinition = $"Header {ApiKeyExtensions.ApiKeyScheme}";
                 var queryStringSecuriryDefinition = $"Query String {ApiKeyExtensions.ApiKeyScheme}";
 
-                c.AddSecurityDefinition(headerSecurityDefinition, new OpenApiSecurityScheme
+                options.AddSecurityDefinition(headerSecurityDefinition, new OpenApiSecurityScheme
                 {
                     In = ParameterLocation.Header,
                     Name = apiKeyOptions.KeyName,
                     Type = SecuritySchemeType.ApiKey,
                 });
 
-                c.AddSecurityDefinition(queryStringSecuriryDefinition, new OpenApiSecurityScheme
+                options.AddSecurityDefinition(queryStringSecuriryDefinition, new OpenApiSecurityScheme
                 {
                     In = ParameterLocation.Query,
                     Name = apiKeyOptions.KeyName,
                     Type = SecuritySchemeType.ApiKey,
                 });
 
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
                     {
                         new OpenApiSecurityScheme
@@ -82,7 +83,7 @@ namespace DeviceControl
                                 Type = ReferenceType.SecurityScheme,
                                 Id = headerSecurityDefinition
                             }
-                        }, new string[0]
+                        }, Array.Empty<string>()
                     },
                     {
                         new OpenApiSecurityScheme
@@ -92,7 +93,7 @@ namespace DeviceControl
                                 Type = ReferenceType.SecurityScheme,
                                 Id = queryStringSecuriryDefinition
                             }
-                        }, new string[0]
+                        }, Array.Empty<string>()
                     }
                 });
             });
