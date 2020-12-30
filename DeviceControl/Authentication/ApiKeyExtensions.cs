@@ -8,6 +8,6 @@ namespace DeviceControl.Authentication
         public const string ApiKeyScheme = "ApiKey";
 
         public static AuthenticationBuilder AddApiKey(this AuthenticationBuilder builder, Action<ApiKeyOptions> configureOptions)
-            => builder.AddScheme<ApiKeyOptions, ApiKeyHandler>(ApiKeyScheme, displayName: null, configureOptions);
+            => builder.AddScheme<ApiKeyOptions, ApiKeyAuthenticationHandler>(ApiKeyScheme, displayName: null, configureOptions);
     }
 }
