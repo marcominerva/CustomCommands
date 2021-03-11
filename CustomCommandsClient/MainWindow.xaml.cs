@@ -23,8 +23,8 @@ namespace CustomCommandsClient
         private AudioConfig audioConfig = null;
         private DialogServiceConnector connector = null;
 
-        private readonly WaveOutEvent player = new WaveOutEvent();
-        private readonly Queue<RawSourceWaveStream> playbackStreams = new Queue<RawSourceWaveStream>();
+        private readonly WaveOutEvent player = new();
+        private readonly Queue<RawSourceWaveStream> playbackStreams = new();
 
         private bool waitingForUserInput = false;
         private ListenState listeningState = ListenState.NotListening;
