@@ -1,9 +1,8 @@
-﻿namespace CustomCommandsClient.Models
+﻿namespace CustomCommandsClient.Models;
+
+public enum Sender
 {
-    public enum Sender
-    {
-        Bot,
-        User,
-        Channel,
-    }
+    Bot,
+    User,
+    Channel,
 }

@@ -1,9 +1,8 @@
-﻿namespace CustomCommandsClient.Models
+﻿namespace CustomCommandsClient.Models;
+
+public enum ListenState
 {
-    public enum ListenState
-    {
-        NotListening,
-        Initiated,
-        Listening,
-    }
+    NotListening,
+    Initiated,
+    Listening,
 }
